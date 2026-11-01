@@ -1,0 +1,12 @@
+# Allowlist only: ignore everything in ~/.config except what is listed below.
+/*
+!/.gitignore
+!/README.md
+!/aerospace/
+!/borders/
+!/sketchybar/
+
+# Backups and noise
+*.bak*
+.palette-bak-*
+.DS_Store

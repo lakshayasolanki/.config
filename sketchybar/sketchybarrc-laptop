@@ -1,0 +1,127 @@
+#!/usr/bin/env zsh
+
+FONT_FACE="JetBrainsMono Nerd Font"
+
+PLUGIN_DIR="$HOME/.config/sketchybar/plugins-laptop"
+PLUGIN_SHARED_DIR="$HOME/.config/sketchybar/plugins"
+
+SPOTIFY_EVENT="com.spotify.client.PlaybackStateChanged"
+
+sketchybar --bar \
+    height=32 \
+    color=0x00000000 \
+    margin=0 \
+    sticky=on \
+    padding_left=23 \
+    padding_right=23 \
+    notch_width=188 \
+    display=main
+
+# Alternatiive background colors
+# label.color=0xffffffff
+# background.color=0x9924273a
+sketchybar --default \
+    background.color=0x00000000 \
+    background.corner_radius=6 \
+    background.padding_left=0 \
+    background.padding_right=0 \
+    background.height=22 \
+    icon.font="$FONT_FACE:Medium:15.0" \
+    icon.padding_left=7 \
+    icon.padding_right=4 \
+    label.font="$FONT_FACE:Medium:12.0" \
+    label.color=0xffd4d4d0 \
+    label.y_offset=0 \
+    label.padding_left=0 \
+    label.padding_right=7
+
+source "$HOME/.config/sketchybar/workspaces.sh"
+
+sketchybar --add item clock right \
+    --set clock \
+    icon=󰃰 \
+    icon.color=0xff2fbf84 \
+    label.font="$FONT_FACE:Bold:12.0" \
+    update_freq=10 \
+    script="$PLUGIN_SHARED_DIR/clock.sh"
+
+sketchybar --add item battery right \
+    --set battery \
+    icon.font="$FONT_FACE:Medium:17.0" \
+    label.font="$FONT_FACE:Bold:11.0" \
+    icon.padding_left=6 \
+    icon.padding_right=3 \
+    label.padding_right=7 \
+    update_freq=20 \
+    script="$PLUGIN_DIR/battery.sh" \
+    --subscribe battery power_source_change system_woke
+
+sketchybar --add item volume right \
+    --set volume \
+    icon.font="$FONT_FACE:Medium:17.0" \
+    label.font="$FONT_FACE:Bold:11.0" \
+    icon.padding_left=6 \
+    icon.padding_right=3 \
+    label.padding_right=7 \
+    script="$PLUGIN_SHARED_DIR/volume.sh" \
+    --subscribe volume volume_change mouse.clicked
+
+sketchybar --add item weather e \
+    --set weather \
+    icon= \
+    icon.color=0xffd4d4d0 \
+    icon.font="$FONT_FACE:Bold:15.0" \
+    update_freq=1800 \
+    script="$PLUGIN_SHARED_DIR/weather.sh" \
+    --subscribe weather system_woke
+
+sketchybar --add item aqi e \
+    --set aqi \
+    icon=$'\uf118' \
+    icon.font="$FONT_FACE:Bold:15.0" \
+    update_freq=1800 \
+    script="$PLUGIN_SHARED_DIR/aqi.sh" \
+    --subscribe aqi system_woke
+
+# Weather gets its own pill beside the notch
+sketchybar --add bracket weather_bar weather aqi \
+    --set weather_bar \
+    background.color=0xcc0a0c0b \
+    background.border_color=0x663df5a7 \
+    background.border_width=1 \
+    background.height=28 \
+    background.corner_radius=8
+
+sketchybar --add event spotify_change $SPOTIFY_EVENT \
+    --add item spotify e \
+    --set spotify \
+    icon= \
+    icon.y_offset=1 \
+    icon.font="$FONT_FACE:Bold:20.0" \
+    label.drawing=off \
+    label.padding_left=3 \
+    background.color=0xcc0a0c0b \
+    background.border_color=0x663df5a7 \
+    background.border_width=1 \
+    background.height=28 \
+    background.corner_radius=8 \
+    background.padding_right=6 \
+    drawing=off \
+    script="$PLUGIN_DIR/spotify.sh" \
+    --subscribe spotify spotify_change mouse.clicked
+
+# One pill behind the status group
+sketchybar --add bracket status volume battery clock \
+    --set status \
+    background.color=0xcc0a0c0b \
+    background.border_color=0x663df5a7 \
+    background.border_width=1 \
+    background.height=28 \
+    background.corner_radius=8
+
+# osascript -e 'quit app "Rectangle"'
+# open -a Rectangle
+
+##### Finalizing Setup #####
+sketchybar --update
+sketchybar --trigger space_change
