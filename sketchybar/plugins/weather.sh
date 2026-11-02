@@ -1,23 +1,30 @@
 #!/usr/bin/env zsh
 
-# Current condition icon + temperature only
+# Current condition icon + temperature only.
+# Paints the last known value instantly, then refreshes from the network.
 
-IP=$(curl -s https://ipinfo.io/ip)
-LOCATION_JSON=$(curl -s https://ipinfo.io/$IP/json)
+CACHE="$HOME/.cache/sketchybar-weather"
+mkdir -p "${CACHE:h}"
 
+if [[ -f $CACHE ]]; then
+    IFS=$'\t' read -r C_ICON C_LABEL <"$CACHE"
+    sketchybar --set $NAME icon="$C_ICON" label="$C_LABEL"
+fi
+
+LOCATION_JSON=$("$HOME/.config/sketchybar/plugins/location.sh")
 LOCATION="$(echo $LOCATION_JSON | jq -r '.city')"
 REGION="$(echo $LOCATION_JSON | jq -r '.region')"
 
 LOCATION_ESCAPED="${LOCATION// /+}+${REGION// /+}"
-WEATHER_JSON=$(curl -s "https://wttr.in/$LOCATION_ESCAPED?format=j1")
+WEATHER_JSON=$(curl -s --max-time 8 "https://wttr.in/$LOCATION_ESCAPED?format=j1")
 
-if [[ -z $WEATHER_JSON ]]; then
-    sketchybar --set $NAME label="--"
+TEMPERATURE=$(echo $WEATHER_JSON | jq -r '.current_condition[0].temp_C // empty')
+CODE=$(echo $WEATHER_JSON | jq -r '.current_condition[0].weatherCode // empty')
+
+if [[ -z $TEMPERATURE ]]; then
+    [[ -f $CACHE ]] || sketchybar --set $NAME label="--"
     return
 fi
-
-TEMPERATURE=$(echo $WEATHER_JSON | jq -r '.current_condition[0].temp_C')
-CODE=$(echo $WEATHER_JSON | jq -r '.current_condition[0].weatherCode')
 
 HOUR=$(date +%-H)
 (( HOUR < 6 || HOUR >= 19 )) && NIGHT=1
@@ -43,4 +50,6 @@ case $CODE in
     ICON=$'\U000F0590' ;;
 esac
 
-sketchybar --set $NAME icon=$ICON label="${TEMPERATURE}°C"
+LABEL="${TEMPERATURE}°C"
+sketchybar --set $NAME icon=$ICON label="$LABEL"
+printf '%s\t%s\n' "$ICON" "$LABEL" >"$CACHE"

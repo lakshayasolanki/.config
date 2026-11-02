@@ -47,7 +47,12 @@ for ws in $(aerospace list-workspaces --all); do
     done
 done
 
-sketchybar "${args[@]}"
+# Only talk to sketchybar when something changed (this runs every few seconds)
+STATE="$HOME/.cache/sketchybar-spaces.state"
+NEW=$(print -r -- "${args[@]}" | md5)
+if [[ $NEW != $(cat "$STATE" 2>/dev/null) ]]; then
+    sketchybar "${args[@]}" && print -r -- $NEW >"$STATE"
+fi
 
 # Workspace pill width changed: re-check whether weather still fits beside the notch
 "$HOME/.config/sketchybar/plugins/weather_place.sh" &

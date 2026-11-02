@@ -1,23 +1,34 @@
 #!/usr/bin/env zsh
 
-# US AQI from Open-Meteo (no API key), located via the same IP lookup as weather.sh
-LOC=$(curl -s https://ipinfo.io/loc)
+# US AQI from Open-Meteo (no API key), located via the shared cached IP lookup.
+# Paints the last known value instantly, then refreshes from the network.
+
+CACHE="$HOME/.cache/sketchybar-aqi"
+mkdir -p "${CACHE:h}"
+
+if [[ -f $CACHE ]]; then
+    IFS=$'\t' read -r C_ICON C_COLOR C_LABEL <"$CACHE"
+    sketchybar --set $NAME icon="$C_ICON" icon.color=$C_COLOR label="$C_LABEL" label.drawing=on
+fi
+
+LOC=$("$HOME/.config/sketchybar/plugins/location.sh" | jq -r '.loc // empty')
 LAT=${LOC%,*}
 LON=${LOC#*,}
 
-AQI=$(curl -s "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=$LAT&longitude=$LON&current=us_aqi" | jq -r '.current.us_aqi // empty')
+AQI=$(curl -s --max-time 8 "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=$LAT&longitude=$LON&current=us_aqi" | jq -r '.current.us_aqi // empty')
 
 if [[ -z $AQI ]]; then
-    sketchybar --set $NAME icon=$'\uf059' icon.color=0xffd4d4d0
+    [[ -f $CACHE ]] || sketchybar --set $NAME icon=$'' icon.color=0xff8fbf9f
     return
 fi
 
 AQI=${AQI%.*}
 
-if   (( AQI <= 50 ));  then COLOR=0xff2fbf84; ICON=$'\uf118'   # Good
-elif (( AQI <= 100 )); then COLOR=0xffb8a46a; ICON=$'\uf11a'   # Moderate
-elif (( AQI <= 150 )); then COLOR=0xffd6c486; ICON=$'\uf119'   # Unhealthy for sensitive groups
-else                        COLOR=0xffd45a5a; ICON=$'\uf071'   # Unhealthy and worse
+if   (( AQI <= 50 ));  then COLOR=0xff6fae88; ICON=$''   # Good
+elif (( AQI <= 100 )); then COLOR=0xffa3b36b; ICON=$''   # Moderate
+elif (( AQI <= 150 )); then COLOR=0xffc9a15a; ICON=$''   # Unhealthy for sensitive groups
+else                        COLOR=0xffc2674f; ICON=$''   # Unhealthy and worse
 fi
 
 sketchybar --set $NAME icon=$ICON icon.color=$COLOR label=$AQI label.drawing=on
+printf '%s\t%s\t%s\n' "$ICON" "$COLOR" "$AQI" >"$CACHE"
