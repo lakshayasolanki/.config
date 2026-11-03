@@ -10,6 +10,7 @@ My macOS environment config. Allowlist-only: see `.gitignore`.
 | Window borders | [JankyBorders](https://github.com/FelixKratz/JankyBorders) | `borders/` |
 | Menu bar | [SketchyBar](https://github.com/FelixKratz/SketchyBar) | `sketchybar/` |
 | Shell prompt | [Powerlevel10k](https://github.com/romkatv/powerlevel10k) (p10k) | `p10k/` |
+| System info | [fastfetch](https://github.com/fastfetch-cli/fastfetch) | `fastfetch/` |
 | Smarter `cd` | [zoxide](https://github.com/ajeetdsouza/zoxide) | none (no config) |
 
 - `aerospace/`: config at `aerospace/aerospace.toml`, which AeroSpace reads natively
@@ -17,6 +18,7 @@ My macOS environment config. Allowlist-only: see `.gitignore`.
 - `sketchybar/`: menu bar config and plugins
 - `p10k/`: prompt config at `p10k/p10k.zsh`. p10k expects `~/.p10k.zsh`, so symlink it:
   `ln -s ~/.config/p10k/p10k.zsh ~/.p10k.zsh`
+- `fastfetch/`: config at `fastfetch/config.jsonc`, which fastfetch reads natively. `binary-man.txt` is the ASCII logo it loads.
 - zoxide: nothing to track. Install it (`brew install zoxide`) and add this to `~/.zshrc`:
   `eval "$(zoxide init zsh)"`. Use `z foo` to jump, `zi` to pick interactively.
 

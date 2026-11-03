@@ -1,0 +1,61 @@
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    // Colours are ANSI palette slots, not hex, so they follow the active Ghostty theme
+    // (light_green = palette 10, light_black = palette 8, values use the default foreground).
+    // binary-man.txt is the binary-me silhouette: 0/1 digits inside, braille dots tracing the exact edge.
+    // $1 sage (palette 10), $2 forest (palette 2), $3 faint forest. "22;" clears bold so Ghostty's bold-color doesn't recolour it.
+    "logo": {
+        "type": "file",
+        "source": "/Users/lakshayasolanki/.config/fastfetch/binary-man.txt",
+        "padding": {
+            "right": 3
+        },
+        "color": {
+            "1": "22;92",
+            "2": "22;32",
+            "3": "22;2;32"
+        }
+    },
+    "display": {
+        "separator": "",
+        "key": {
+            "width": 9
+        },
+        "color": {
+            "keys": "light_green",
+            "title": "light_green"
+        },
+        "duration": {
+            "abbreviation": true,
+            "spaceBeforeUnit": "never"
+        },
+        "size": {
+            "ndigits": 1
+        },
+        "percent": {
+            "color": {
+                "green": "",
+                "yellow": "",
+                "red": ""
+            }
+        }
+    },
+    "modules": [
+        // sit the info block beside his face
+        "break",
+        {
+            "type": "title",
+            "color": {
+                "user": "light_green",
+                "at": "light_black",
+                "host": "light_green"
+            }
+        },
+        { "type": "os", "key": "os", "format": "{name} {version}" },
+        { "type": "host", "key": "host" },
+        { "type": "kernel", "key": "kernel" },
+        { "type": "uptime", "key": "uptime" },
+        { "type": "shell", "key": "shell" },
+        { "type": "memory", "key": "memory" }
+    ]
+}
